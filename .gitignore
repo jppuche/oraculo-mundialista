@@ -1,0 +1,32 @@
+# venv / Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+
+# Datos raw de terceros: derivables del lock (re-fetch por commit SHA). El lock SI se commitea.
+data/raw/*.csv
+data/raw/*.tsv
+data/raw/*.json
+!data/raw/sources.lock.json
+!data/raw/wc2026_thirds_combinations.json
+
+# Cuarentena de re-pin: backups + copias de trabajo del diff (quarantine+diff, data_security.md P2). Transitorio, local.
+data/raw/_quarantine/
+
+# Outputs intermedios
+data/validated/
+
+# Overlay de resultados confirmados pendientes de upstream (FotMob etc.): derivado provisional, NO se commitea. El patch se documenta en DECISIONS/STATUS para reproducibilidad.
+data/derived/
+
+# Artefactos transitorios de auditoria de seguridad
+.gd_tmp/
+guarddog*.json
+
+# Claude Code local (machine-specific)
+.claude/settings.local.json
+
+# Internal process history (learning material, not for the public repo)
+archive/

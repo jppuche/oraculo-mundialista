@@ -1,0 +1,57 @@
+{
+  "_comment": "Pin lock para fuentes de datos externas. Fuente de verdad de los hashes (el gate data_validation.py LO LEE; no se duplica el hash en codigo). Regenerar SOLO via wcprode.ingest.pin_and_download tras revisar el diff (data_security.md P2 quarantine).",
+  "martj42_international_results": {
+    "repo": "https://github.com/martj42/international_results",
+    "commit": "80f408d2c93ba4f9e06a2c7cdc5effb05fea9680",
+    "commit_date": "2026-07-15T23:39:52Z",
+    "license": "CC0-1.0",
+    "pinned_at": "2026-07-18",
+    "_repin_note": "Re-pin semis->final (2026-07-18): a77ed04->80f408d (commit martj42 del 15, 23:39 UTC). Diff vs a77ed04 (diff_repin exit 0): 2 NA->score (SEMIS: France 0-2 Spain 14-jul, England 1-2 Argentina 15-jul) -> KO 30/30 jugados hasta semis + los 2 fixtures finales DEFINIDOS (3er puesto France-England 18-jul, FINAL Spain-Argentina 19-jul; los placeholders NA-NA del 18/19 aparecen como 'eliminadas' en el diff por el match_key, es el reemplazo de TBD por los cruces reales). 0 shootouts del WC2026 (ninguna semi a penales; +1 fila no-FIFA: Raetia-Rouet-Provence 06-jun, CONIFA). 14 altas restantes = CONIFA/no-FIFA + renombre Ticino->Canton Ticino. 1 reprogramacion benigna (amistoso Maldives-Pakistan 06-01->06-04, MISMO score 0-3). 0 scores historicos alterados. Gate 49521/49521. Backups a77ed04 en _quarantine/. Historia previa: 273c731->a77ed04. NOTA: la FINAL Spain-Argentina confirma el par de la Final Sonada lockeada el 06-24 (Argentina+Spain).",
+    "raw_base_url": "https://raw.githubusercontent.com/martj42/international_results/80f408d2c93ba4f9e06a2c7cdc5effb05fea9680",
+    "files": {
+      "results.csv": {
+        "sha256": "9bb7ae6bac69e6d028ecd1a2c3a040d8590671bc430ccf8ac17f4ad3d1a126ee",
+        "rows_incl_header": 49521
+      },
+      "shootouts.csv": {
+        "sha256": "2acdc95fdad14f5f17200150a1a4a5fa6c2ccf57d31c8b4f61a2c7d9c0493113",
+        "rows_incl_header": 684
+      }
+    }
+  },
+  "wc2026_thirds_combinations": {
+    "_comment": "Annex C (495 combinaciones tercero->slot R32). Wikipedia template PINEADO por oldid (revision inmutable; no es git pero el oldid es el analogo del SHA). Re-pin via scripts/ingest_thirds_table.py (cambiar OLDID + quarantine+diff). Validado estructuralmente: 495 group-sets C(12,8) unicos, matching perfecto, elegibilidad por slot, sin rematch de grupo.",
+    "source": "Wikipedia Template:2026 FIFA World Cup third-place table",
+    "url": "https://en.wikipedia.org/w/index.php?title=Template:2026_FIFA_World_Cup_third-place_table&oldid=1357614390",
+    "oldid": 1357614390,
+    "oldid_date": "2026-06-03T17:09:34Z",
+    "bracket_page_oldid": 1359418806,
+    "pinned_at": "2026-06-15",
+    "residual_risk": "No se pudo alcanzar el PDF de FIFA (Annex C) para cross-validar contra la primaria (render JS). Confianza por validacion estructural + provenance Wikipedia->regulations.",
+    "files": {
+      "wc2026_thirds_combinations.json": {
+        "sha256": "0c9434e1bb405f7adabd48981753707c422ccb32d0d364565d65d92f4c68513f",
+        "combinations": 495
+      }
+    }
+  },
+  "wc2026_groups": {
+    "_comment": "Composición oficial de grupos A-L (nombres canónicos martj42). Membresía derivada de los fixtures de martj42 (autoritativa); etiquetado A-L anclado por Pot 1 desde las páginas dedicadas de Wikipedia. Re-derivable via scripts/ingest_groups.py. Validado: 12x4, anfitriones Mexico=A/Canada=B/United States=D, A-F coinciden con data/actuals_2026-06-15.md.",
+    "source": "martj42 fixtures (membresía) + Wikipedia '2026 FIFA World Cup Group X' (etiquetas, revids en el JSON)",
+    "pinned_at": "2026-06-15",
+    "files": {
+      "wc2026_groups.json": {
+        "sha256": "db4ba58d0e67cdce8169f82d3430637a851856ada8541c9e1936eeca1f6e1c47"
+      }
+    }
+  },
+  "test_fixtures": {
+    "_comment": "Fixtures de datos externos usados SOLO por el oraculo. CSV-only, contenido untrusted (DATA para un test, no instrucciones).",
+    "E0_1718": {
+      "url": "https://www.football-data.co.uk/mmz4281/1718/E0.csv",
+      "sha256": "4f3389365ef3f7ac966764ed8ba67cf3b79f5aebed18dd224099c4b2c98bc67b",
+      "fetched_at": "2026-06-10T21:43:23Z",
+      "scope": "oracle O5 only"
+    }
+  }
+}

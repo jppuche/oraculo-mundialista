@@ -1,0 +1,8 @@
+# World Cup 2026 prode predictor — runtime deps. In-house engine, no third-party model lib.
+#
+# Installs MUST go through the dependency-gate hook (docs/dep_audits/_allowlist.json
+# + per-package audit doc). See docs/dep_audits/_TEMPLATE.md.
+# numpy/scipy/pandas are the allowlisted foundational runtime deps.
+numpy>=1.24
+scipy>=1.10
+pandas>=2.0

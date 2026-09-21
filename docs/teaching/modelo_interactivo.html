@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oráculo Mundialista — El modelo, de cero a fundamentos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Doto:wght@400;600;700&family=Space+Grotesk:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --accent:#D71921; --accent-subtle:rgba(215,25,33,0.12);
+  --success:#4A9E5C; --warning:#D4A843; --interactive:#007AFF;
+  --ease:cubic-bezier(0.25,0.1,0.25,1);
+}
+html[data-theme="light"]{
+  --bg:#F5F5F5; --surface:#FFFFFF; --surface-raised:#F0F0F0;
+  --border:#E8E8E8; --border-visible:#CCCCCC;
+  --text-disabled:#999999; --text-secondary:#666666;
+  --text-primary:#1A1A1A; --text-display:#000000;
+}
+html[data-theme="dark"]{
+  --bg:#000000; --surface:#111111; --surface-raised:#1A1A1A;
+  --border:#222222; --border-visible:#333333;
+  --text-disabled:#666666; --text-secondary:#999999;
+  --text-primary:#E8E8E8; --text-display:#FFFFFF;
+  --interactive:#5B9BF6;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--text-primary);
+  font-family:"Space Grotesk","DM Sans",system-ui,sans-serif;
+  font-size:16px; line-height:1.5;
+  transition:background .3s var(--ease), color .3s var(--ease);
+}
+.mono{font-family:"Space Mono","JetBrains Mono",monospace}
+.label{
+  font-family:"Space Mono",monospace; font-size:11px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--text-secondary); line-height:1.2;
+}
+.wrap{max-width:880px; margin:0 auto; padding:0 24px}
+section{padding:96px 0 48px}
+h2{font-size:24px; font-weight:500; letter-spacing:-.01em; color:var(--text-display); margin:8px 0 24px}
+h3{font-size:18px; font-weight:500; margin:32px 0 12px; color:var(--text-display)}
+p{margin-bottom:16px; max-width:68ch}
+p strong{color:var(--text-display); font-weight:500}
+em{font-style:normal; color:var(--text-display)}
+.sec-num{font-family:"Space Mono",monospace; font-size:12px; letter-spacing:.08em; color:var(--text-disabled)}
+
+/* top bar */
+.topbar{
+  position:fixed; top:0; left:0; right:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 24px; background:var(--bg);
+  border-bottom:1px solid var(--border);
+}
+.topbar .label{color:var(--text-disabled)}
+#progress{position:fixed; top:0; left:0; height:2px; background:var(--text-display); width:0; z-index:60; transition:width .15s var(--ease)}
+.toggle{
+  font-family:"Space Mono",monospace; font-size:11px; letter-spacing:.08em;
+  background:none; border:1px solid var(--border-visible); color:var(--text-secondary);
+  padding:6px 14px; border-radius:999px; cursor:pointer;
+  transition:color .2s var(--ease), border-color .2s var(--ease);
+}
+.toggle:hover{color:var(--text-display); border-color:var(--text-secondary)}
+
+/* hero */
+.hero{padding:160px 0 96px; position:relative}
+.dotbg{
+  position:absolute; inset:0; pointer-events:none; opacity:.5;
+  background-image:radial-gradient(circle, var(--border-visible) 1px, transparent 1px);
+  background-size:16px 16px;
+  -webkit-mask-image:linear-gradient(180deg,transparent, black 30%, black 70%, transparent);
+  mask-image:linear-gradient(180deg,transparent, black 30%, black 70%, transparent);
+}
+.hero .wrap{position:relative}
+.hero h1{
+  font-family:"Doto","Space Mono",monospace; font-weight:700;
+  font-size:clamp(44px,9vw,92px); line-height:1; letter-spacing:-.03em;
+  color:var(--text-display); margin:24px 0 16px;
+}
+.hero .sub{font-size:18px; font-weight:300; color:var(--text-secondary); max-width:56ch}
+.hero-meta{display:flex; gap:24px; margin-top:48px; flex-wrap:wrap}
+
+/* hero stagger entrance */
+.hero-label, .hero h1, .hero .sub, .hero-meta, .hero-stats{
+  opacity:0;
+  animation:heroFade .4s var(--ease) forwards;
+}
+.hero-label{animation-delay:0ms}
+.hero h1{animation-delay:120ms}
+.hero .sub{animation-delay:240ms}
+.hero-meta{animation-delay:360ms}
+.hero-stats{animation-delay:480ms}
+@keyframes heroFade{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+/* hero stats row */
+.hero-stats{
+  display:flex; gap:40px; margin-top:48px; flex-wrap:wrap;
+  border-top:1px solid var(--border); padding-top:32px;
+}
+.hero-stat .stat-num{
+  font-family:"Space Mono",monospace; font-weight:700;
+  font-size:clamp(28px,4vw,40px); line-height:1; letter-spacing:-.02em;
+  color:var(--text-display); display:block;
+}
+.hero-stat .label{display:block; margin-top:6px}
+
+/* cards & misc */
+.card{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; margin:24px 0; overflow-x:auto}
+.aside{border-left:2px solid var(--border-visible); padding:4px 0 4px 20px; margin:24px 0; color:var(--text-secondary)}
+.aside .label{display:block; margin-bottom:6px}
+.formula{
+  font-family:"Space Mono",monospace; font-size:14px; color:var(--text-display);
+  background:var(--surface); border:1px solid var(--border); border-radius:8px;
+  padding:16px 20px; margin:16px 0; overflow-x:auto; white-space:pre;
+}
+.kpi{font-family:"Space Mono",monospace; color:var(--text-display)}
+.reveal{opacity:0; transition:opacity .5s var(--ease)}
+.reveal.vis{opacity:1}
+/* stagger for direct children of .wrap inside .reveal.vis */
+.reveal.vis > *{
+  animation:staggerIn .4s var(--ease) both;
+}
+.reveal.vis > *:nth-child(1){animation-delay:0ms}
+.reveal.vis > *:nth-child(2){animation-delay:60ms}
+.reveal.vis > *:nth-child(3){animation-delay:120ms}
+.reveal.vis > *:nth-child(4){animation-delay:180ms}
+.reveal.vis > *:nth-child(5){animation-delay:240ms}
+.reveal.vis > *:nth-child(6){animation-delay:300ms}
+.reveal.vis > *:nth-child(7){animation-delay:360ms}
+.reveal.vis > *:nth-child(8){animation-delay:420ms}
+.reveal.vis > *:nth-child(9){animation-delay:480ms}
+.reveal.vis > *:nth-child(10){animation-delay:540ms}
+@keyframes staggerIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+hr.sep{border:0; border-top:1px solid var(--border); margin:0}
+
+/* controls */
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; margin:16px 0}
+.pick{
+  font-family:"Space Mono",monospace; font-size:14px;
+  background:none; border:1px solid var(--border-visible); color:var(--text-primary);
+  padding:8px 16px; border-radius:8px; cursor:pointer;
+  transition:all .2s var(--ease);
+}
+.pick:hover{border-color:var(--text-secondary)}
+.pick.on{background:var(--text-display); color:var(--bg); border-color:var(--text-display)}
+.sliderrow{display:flex; align-items:center; gap:16px; margin:12px 0; flex-wrap:wrap}
+.sliderrow .label{width:140px; flex-shrink:0}
+input[type=range]{
+  -webkit-appearance:none; appearance:none; flex:1; min-width:140px; height:2px;
+  background:var(--border-visible); outline:none; border-radius:1px;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none; width:16px; height:16px; border-radius:50%;
+  background:var(--text-display); cursor:pointer; border:none;
+}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--text-display);cursor:pointer;border:none}
+.sliderval{font-family:"Space Mono",monospace; font-size:14px; color:var(--text-display); width:88px; text-align:right}
+
+/* tables */
+table{border-collapse:collapse; width:100%; margin:16px 0; font-size:14px}
+th{font-family:"Space Mono",monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+   color:var(--text-secondary); font-weight:400; text-align:left; padding:8px 12px; border-bottom:1px solid var(--border-visible)}
+td{padding:8px 12px; border-bottom:1px solid var(--border)}
+td.num{font-family:"Space Mono",monospace; text-align:right; color:var(--text-display)}
+tr.total td{border-bottom:none; border-top:1px solid var(--border-visible); color:var(--text-display); font-weight:500}
+
+/* big numbers */
+.bignum{font-family:"Doto","Space Mono",monospace; font-weight:700; font-size:clamp(40px,7vw,64px);
+  line-height:1; letter-spacing:-.02em; color:var(--text-display)}
+.bignum .unit{font-family:"Space Mono",monospace; font-size:12px; letter-spacing:.08em; color:var(--text-secondary); vertical-align:super}
+
+/* bars (poisson) */
+.bars{display:flex; align-items:flex-end; gap:8px; height:160px; margin:24px 0 4px}
+.bar{flex:1; background:var(--text-primary); opacity:.85; border-radius:3px 3px 0 0; transition:height .25s var(--ease); min-height:1px}
+.barlabels{display:flex; gap:8px}
+.barlabels span{flex:1; text-align:center; font-family:"Space Mono",monospace; font-size:11px; color:var(--text-secondary)}
+
+/* heatmap */
+.gridwrap{display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap; margin:24px 0}
+.heat{display:grid; grid-template-columns:repeat(8,1fr); gap:3px; flex:1; min-width:280px; max-width:420px}
+/* TAREA 1 fix: sidepanel with constrained flex sizing */
+.gridwrap .sidepanel{flex:1 1 220px; min-width:200px; max-width:300px}
+.cell{aspect-ratio:1; border-radius:4px; position:relative; background:var(--text-display);
+  display:flex; align-items:center; justify-content:center;
+  font-family:"Space Mono",monospace; font-size:10px; transition:opacity .2s var(--ease)}
+.cell span{position:relative; z-index:2; color:var(--text-secondary)}
+.cell.hdr{background:none}
+.cell.hdr span{color:var(--text-disabled); font-size:11px}
+/* TAREA 3f: DC cells transition outline-color smoothly */
+.cell.dc{outline:1.5px solid var(--accent); outline-offset:-1.5px; transition:opacity .2s var(--ease), outline-color .2s var(--ease)}
+.cell.no-dc{outline:1.5px solid transparent; outline-offset:-1.5px; transition:opacity .2s var(--ease), outline-color .2s var(--ease)}
+.cell.dc span{color:var(--accent); font-weight:700}
+.hdaout{display:flex; gap:24px; margin-top:12px}
+.hdaout div{flex:0}
+.hdaout .v{font-family:"Space Mono",monospace; font-size:20px; color:var(--text-display)}
+
+/* decay svg */
+.curvewrap{margin:24px 0}
+svg text{font-family:"Space Mono",monospace; fill:var(--text-disabled); font-size:10px}
+svg .axis{stroke:var(--border-visible); stroke-width:1}
+svg .curve{stroke:var(--text-display); stroke-width:1.5; fill:none}
+svg .hl{stroke:var(--accent); stroke-width:1; stroke-dasharray:3 3}
+
+/* ranking bars */
+.rank{margin:16px 0}
+.rankrow{display:grid; grid-template-columns:64px 1fr 72px; gap:12px; align-items:center; padding:6px 0}
+.rankbar{height:10px; background:var(--text-primary); opacity:.8; border-radius:2px; transition:width .4s var(--ease)}
+.rankrow.best .rankbar{background:var(--text-display); opacity:1}
+.rankrow.best .mono{font-weight:700}
+.rankrow .tagwin{font-family:"Space Mono",monospace; font-size:10px; letter-spacing:.08em; color:var(--success)}
+
+/* oracle table tags */
+.tag{font-family:"Space Mono",monospace; font-size:10px; letter-spacing:.06em; padding:2px 8px;
+  border:1px solid var(--border-visible); border-radius:999px; color:var(--text-secondary); white-space:nowrap}
+.tag.block{color:var(--accent); border-color:var(--accent)}
+
+/* TAREA 3e: checkpoints */
+.checkpoint{
+  border-top:1px solid var(--border-visible);
+  padding-top:16px;
+  margin:48px 0 0;
+}
+.checkpoint p{
+  font-family:"Space Grotesk",sans-serif;
+  font-size:15px;
+  color:var(--text-primary);
+  margin-bottom:0;
+}
+
+footer{padding:64px 0 96px; border-top:1px solid var(--border); margin-top:96px}
+footer .wrap{display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px}
+@media(max-width:640px){
+  section{padding:64px 0 32px}
+  .hero{padding:120px 0 64px}
+  .rankrow{grid-template-columns:52px 1fr 60px}
+}
+
+/* TAREA 3: reduced motion — disable all new animations */
+@media(prefers-reduced-motion:reduce){
+  .hero-label,.hero h1,.hero .sub,.hero-meta,.hero-stats{
+    animation:none; opacity:1;
+  }
+  .reveal.vis > *{animation:none}
+  .cell.dc,.cell.no-dc{transition:opacity .2s var(--ease)}
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div class="topbar">
+  <span class="label" id="topbarLabel">ORÁCULO MUNDIALISTA · EL MODELO</span>
+  <button class="toggle" id="modebtn" onclick="toggleMode()">DARK</button>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="s0">
+  <div class="dotbg"></div>
+  <div class="wrap">
+    <span class="label hero-label">WC2026 · DIXON-COLES IN-HOUSE · 113/113 TESTS</span>
+    <h1>P(h,a)</h1>
+    <p class="sub">Cómo se predice un mundial para un prode que paga marcadores exactos: de las reglas del juego al argmax, con la matemática real corriendo en esta página.</p>
+    <div class="hero-meta">
+      <span class="label">01 REGLAS</span><span class="label">02 VALOR ESPERADO</span>
+      <span class="label">03 POISSON</span><span class="label">04 DIXON-COLES</span>
+      <span class="label">05 TIEMPO</span><span class="label">06 AJUSTE</span>
+      <span class="label">07 DECISIÓN</span><span class="label">08 FINAL SOÑADA</span>
+      <span class="label">09 VALIDACIÓN</span><span class="label">10 VEREDICTO</span>
+    </div>
+    <!-- TAREA 3a: hero stats with count-up -->
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="stat-num" id="statPartidos">0</span>
+        <span class="label">PARTIDOS A PREDECIR</span>
+      </div>
+      <div class="hero-stat">
+        <span class="stat-num" id="statFit">0</span>
+        <span class="label">PARTIDOS EN EL FIT</span>
+      </div>
+      <div class="hero-stat">
+        <span class="stat-num" id="statTests">113/113</span>
+        <span class="label">TESTS VERDES (4 ORÁCULOS)</span>
+      </div>
+    </div>
+  </div>
+</header>
+<hr class="sep">
+
+<!-- ============ 01 REGLAS ============ -->
+<section id="s1">
+  <div class="wrap reveal">
+    <span class="sec-num">01</span>
+    <h2>Las reglas del juego</h2>
+    <p>El prode no pregunta quién gana. Por cada partido entregás un <strong>marcador</strong>, y ese único número cobra por tres vías simultáneas:</p>
+    <div class="formula">12  marcador exacto (ambas cifras)
+ 5  resultado correcto, no exacto (ganador o empate)
++2  cantidad de goles de UNO de los equipos  (apila con el 5, nunca con el 12)
++5  ganador de penales — knockouts, solo si predijiste empate</div>
+    <p>Eso lo cambia todo. Probalo: el resultado real fue <strong>Argentina 3 – 1 Francia</strong>. Elegí qué hubieras predicho:</p>
+    <div class="card">
+      <span class="label">TU PREDICCIÓN</span>
+      <div class="btnrow" id="rulePicks"></div>
+      <div style="display:flex; align-items:baseline; gap:16px; margin-top:8px">
+        <div class="bignum" id="rulePts">7</div>
+        <span class="label">PUNTOS</span>
+      </div>
+      <p class="mono" id="ruleWhy" style="font-size:13px; color:var(--text-secondary); margin:12px 0 0"></p>
+    </div>
+    <p><strong>Cuatro predicciones con el mismo ganador valen 7, 7, 5 y 2 puntos.</strong> En un pool de "quién gana" serían idénticas. Acá no — y por eso un modelo que solo dice "gana Argentina" no alcanza: necesita opinar sobre <em>cada marcador posible</em>.</p>
+    <div class="checkpoint">
+      <span class="label">LO QUE TE LLEVÁS</span>
+      <p>El prode paga tres cosas a la vez por un solo marcador. Por eso necesitás una opinión sobre TODOS los marcadores posibles, no sobre el ganador.</p>
+    </div>
+  </div>
+</section>
+<hr class="sep">
+
+<!-- ============ 02 EV ============ -->
+<section id="s2">
+  <div class="wrap reveal">
+    <span class="sec-num">02</span>
+    <h2>El valor esperado: cosechas, no aciertos</h2>
+    <p>El salto conceptual central: tu predicción no cobra solo "si le pegás". <strong>Cobra algo distinto en cada futuro posible.</strong> Su valor es el promedio de esas cosechas, pesado por la probabilidad de cada futuro:</p>
+    <div class="formula">EV(predicción) = Σ  P(resultado) × puntos(predicción, resultado)
+                 sobre todos los resultados posibles</div>
+    <p>Un mundo de juguete con solo 4 finales posibles. Elegí tu predicción y mirá la cosecha mundo por mundo:</p>
+    <div class="card">
+      <span class="label">TU PREDICCIÓN</span>
+      <div class="btnrow" id="evPicks"></div>
+      <table>
+        <thead><tr><th>Si sale…</th><th>P</th><th>Qué cobra</th><th style="text-align:right">Puntos</th><th style="text-align:right">Aporte</th></tr></thead>
+        <tbody id="evRows"></tbody>
+        <tbody><tr class="total"><td colspan="4">EV — puntos esperados de esta predicción</td><td class="num" id="evTotal">0</td></tr></tbody>
+      </table>
+    </div>
+    <p>Fijate que <span class="kpi">1-0</span> y <span class="kpi">1-1</span> empatan como marcador más probable (P=0.30 cada uno) y aún así <strong>EV(1-0) = 5.6 &gt; EV(1-1) = 4.6</strong>. El 1-0 cosecha mejor en los mundos vecinos: "ganador" cubre 0.50 de masa de probabilidad, "empate" solo 0.30.</p>
+    <div class="aside"><span class="label">LA PREGUNTA CORRECTA</span>
+    No es "¿cuál es el final más probable?" sino <em>"¿qué predicción junta más puntos promediando sobre todos los futuros?"</em>. Por eso el sistema a veces elige marcadores no-modales — y por eso sí predijo Brasil 0-0 Marruecos cuando la masa de empate lideraba.</div>
+    <div class="checkpoint">
+      <span class="label">LO QUE TE LLEVÁS</span>
+      <p>EV = promedio de cosechas sobre todos los futuros. La pregunta nunca es «qué va a pasar» sino «qué jugada paga más en promedio».</p>
+    </div>
+  </div>
+</section>
+<hr class="sep">
+
+<!-- ============ 03 POISSON ============ -->
+<section id="s3">
+  <div class="wrap reveal">
+    <span class="sec-num">03</span>
+    <h2>De dónde salen las probabilidades: Poisson</h2>
+    <p>Para computar el EV necesitás P de cada marcador. ¿De dónde sale? Primer bloque: <strong>los goles son conteos</strong> — eventos raros que ocurren a cierta tasa durante 90 minutos. La distribución natural para "cuántas veces ocurre algo raro en una ventana de tiempo" es <strong>Poisson</strong>: un solo parámetro, λ, los goles que esperás en promedio.</p>
+    <div class="card">
+      <div class="sliderrow">
+        <span class="label">λ GOLES ESPERADOS</span>
+        <input type="range" id="lamSlider" min="30" max="400" value="140">
+        <span class="sliderval" id="lamVal">1.40</span>
+      </div>
+      <div class="bars" id="poisBars"></div>
+      <div class="barlabels" id="poisLabels"></div>
+      <p class="label" style="margin-top:12px">P(K GOLES) PARA UN EQUIPO CON ESA TASA</p>
+    </div>
+    <p>¿Y de dónde sale λ? De los equipos. Cada selección tiene un <span class="kpi">attack</span> y un <span class="kpi">defence</span>, y la tasa esperada del local se arma en escala logarítmica:</p>
+    <div class="formula">log λ_local     = attack_local − defence_visitante + γ·(1 − neutral)
+log λ_visitante = attack_visitante − defence_local</div>
+    <p>γ es la <strong>ventaja de localía</strong> — y en este mundial casi no existe: con 48 selecciones en sedes ajenas, <span class="kpi">neutral=true</span> la apaga para todos salvo México, USA y Canadá en casa. Nuestro fit da γ̂ = 0.21: jugar de local multiplica tu tasa de goles por e<sup>0.21</sup> ≈ 1.23.</p>
+    <p>Con dos tasas, el modelo más simple asume <strong>independencia</strong>: la probabilidad de un marcador es el producto de las dos Poisson, celda por celda — P(2-1) = P(local haga 2) × P(visitante haga 1). Eso supone que lo que hace un equipo no afecta al otro. ¿Te suena falso para el fútbol? Tenés razón. Siguiente sección.</p>
+    <div class="checkpoint">
+      <span class="label">LO QUE TE LLEVÁS</span>
+      <p>Poisson convierte attack/defence en P(k goles); el producto independiente arma la grilla completa — con un defecto conocido en los marcadores bajos.</p>
+    </div>
+  </div>
+</section>
+<hr class="sep">
+
+<!-- ============ 04 DIXON-COLES ============ -->
+<section id="s4">
+  <div class="wrap reveal">
+    <span class="sec-num">04</span>
+    <h2>Dixon-Coles: la corrección quirúrgica</h2>
+    <p>En 1997, Dixon y Coles midieron el defecto del producto independiente: <strong>sub-reporta sistemáticamente los marcadores bajos</strong> — 0-0, 1-0, 0-1 y 1-1, que son justo los más comunes del fútbol. Su corrección τ multiplica SOLO esas cuatro celdas, gobernada por un parámetro ρ:</p>
+    <div class="formula">τ(0,0) = 1 − λμρ      τ(1,0) = 1 + μρ
+τ(0,1) = 1 + λρ      τ(1,1) = 1 − ρ        (resto de la grilla: ×1)</div>
+    <p>Con ρ negativo (lo que el fútbol real muestra): suben 0-0 y 1-1, bajan 1-0 y 0-1. Movelo y mirá la grilla — las celdas marcadas en rojo son las cuatro corregidas:</p>
+    <div class="card">
+      <div class="sliderrow"><span class="label">λ LOCAL</span><input type="range" id="hLam" min="50" max="300" value="140"><span class="sliderval" id="hLamV">1.40</span></div>
+      <div class="sliderrow"><span class="label">μ VISITANTE</span><input type="range" id="aLam" min="50" max="300" value="110"><span class="sliderval" id="aLamV">1.10</span></div>
+      <div class="sliderrow"><span class="label">ρ CORRECCIÓN DC</span><input type="range" id="rhoS" min="-20" max="20" value="-13"><span class="sliderval" id="rhoV">−0.13</span></div>
+      <div class="gridwrap">
+        <div style="flex:1; min-width:280px">
+          <div class="heat" id="heat"></div>
+          <p class="label" style="margin-top:8px">FILAS: GOLES LOCAL · COLUMNAS: GOLES VISITANTE · OPACIDAD = PROBABILIDAD</p>
+        </div>
+        <div class="sidepanel">
+          <div class="hdaout">
+            <div><span class="label">P(LOCAL)</span><div class="v" id="pH">—</div></div>
+            <div><span class="label">P(EMPATE)</span><div class="v" id="pD">—</div></div>
+            <div><span class="label">P(VISITA)</span><div class="v" id="pA">—</div></div>
+          </div>
+          <p style="font-size:13px; color:var(--text-secondary); margin-top:16px" id="dcDelta"></p>
+        </div>
+      </div>
+    </div>
+    <p>Y acá la conexión que justifica elegir ESTE modelo para ESTE prode: <strong>las cuatro celdas que τ corrige son las de mayor masa de probabilidad del fútbol — es decir, donde más se cobran los 12 del exacto y los +2</strong>. No elegimos Dixon-Coles porque un blog lo dijera: lo elegimos porque su razón de existir es afinar exactamente la zona de la grilla que nuestro scoring paga.</p>
+    <div class="aside"><span class="label">DATOS REALES</span>
+    Nuestro fit sobre la EPL 2017/18 dio ρ̂ = −0.1285 — el mismo dataset donde dos implementaciones independientes publicadas dieron −0.1285 (Python) y ~−0.13 (R, otra temporada). Sobre los 49.306 partidos internacionales, ρ̂ = −0.066: la dependencia existe pero es más suave entre selecciones. El signo negativo dice: <em>hay más empates de pocos goles de lo que el azar independiente predice</em>.</div>
+    <div class="checkpoint">
+      <span class="label">LO QUE TE LLEVÁS</span>
+      <p>τ corrige exactamente las 4 celdas donde el prode paga los 12 y los +2. Por eso Dixon-Coles y no otro modelo.</p>
+    </div>
+  </div>
+</section>
+<hr class="sep">
+
+<!-- ============ 05 TIEMPO ============ -->
+<section id="s5">
+  <div class="wrap reveal">
+    <span class="sec-num">05</span>
+    <h2>El tiempo: lo reciente vale más</h2>
+    <p>Tenemos 49 mil partidos desde 1872 — pero el Brasil del 70 no dice nada del Brasil de 2026. La solución: cada partido entra al ajuste con un <strong>peso que decae exponencialmente con su edad</strong>:</p>
+    <div class="formula">w = exp(−ξ · días_de_antigüedad)        half-life = ln(2)/ξ</div>
+    <div class="card">
+      <div class="sliderrow">
+        <span class="label">ξ VELOCIDAD DE OLVIDO</span>
+        <input type="range" id="xiS" min="0" max="40" value="18">
+        <span class="sliderval" id="xiV">0.0018</span>
+      </div>
+      <div class="curvewrap">
+        <svg viewBox="0 0 700 200" width="100%" id="decaySvg"></svg>
+      </div>
+      <table>
+        <thead><tr><th>Partido</th><th>Antigüedad</th><th style="text-align:right">Peso en el fit</th></tr></thead>
+        <tbody id="decayRows"></tbody>
+      </table>
+      <p style="font-size:13px; color:var(--text-secondary)" id="hlText"></p>
+    </div>
+    <p>La evidencia de la investigación previa: <strong>mover ξ cambia los resultados ~10× más que cambiar de modelo</strong> (Poisson vs DC vs bivariado se apiñan; el decay los separa). El componente más influyente del sistema no es el modelo elegante — es cuánta memoria le das.</p>
+    <h3>El knob que medimos: por qué Brasil–Marruecos salía parejo</h3>
+    <p>Nuestro ξ = 0.0018 viene calibrado de fútbol <em>de clubes</em>, donde hay partidos toda la semana. Half-life de ~385 días: lo que pasó hace poco más de un año ya pesa la mitad. Para selecciones — que juegan 10-15 partidos al año — eso <em>parecía</em> agresivo: el fit ve casi solo los últimos dos años. Marruecos venía de dos años excelentes; Brasil, de dos años mediocres. Resultado: <span class="kpi">P 0.31 / 0.34 / 0.35</span> — virtualmente parejo, con el 0-0 como jugada EV-óptima. La misma firma puso a <strong>EE.UU. como leve underdog de local ante Paraguay</strong>. Dos llamadas que levantaban la ceja: ¿el modelo ve algo que el prestigio de la camiseta tapa, o está olvidando demasiado rápido?</p>
+    <p>Esa era la pregunta — y la Fase 3 la <strong>respondió midiendo, no opinando</strong> (la corrida completa, en la sección 10). El backtest sobre tres mundiales held-out ubica a ξ=0.0018 dentro de un <em>plateau plano</em>: lo que degrada los puntos esperados es olvidar <em>más rápido</em> (ξ alto), no más lento. La corazonada del "club-agresivo" apuntaba al lado equivocado. <strong>Veredicto (D7): no recalibrar.</strong> Y el desenlace en cancha fue la moraleja en miniatura: EE.UU. no perdió — ganó 4-1 — y Marruecos terminó 5º en la Final Soñada. Ninguno era señal; eran <strong>ruido de muestra chica</strong>. Una hipótesis razonable, falsada por su propio test.</p>
+    <div class="checkpoint">
+      <span class="label">LO QUE TE LLEVÁS</span>
+      <p>El decay decide cuánta memoria tiene el modelo — y mueve los resultados más que el modelo mismo. ξ era el knob abierto; la Fase 3 lo midió y lo confirmó (D7): no se recalibra.</p>
+    </div>
+  </div>
+</section>
+<hr class="sep">
+
+<!-- ============ 06 MLE ============ -->
+<section id="s6">
+  <div class="wrap reveal">
+    <span class="sec-num">06</span>
+    <h2>El ajuste: qué significa "fitear"</h2>
+    <p>El modelo tiene ~200 diales: un attack y un defence por selección, γ, ρ. <strong>Fitear = girar todos los diales hasta que lo que YA pasó sea lo más probable posible.</strong> El criterio se llama máxima verosimilitud (MLE): cada parámetro candidato asigna una probabilidad a cada partido histórico; multiplicalas todas (sumá sus logaritmos) y tenés un puntaje. El fit busca el máximo de ese puntaje — con cada término multiplicado por su peso de decay: errarle a un partido de 2025 cuesta caro, errarle a uno de 1980 casi no cuesta.</p>
+    <p>Probalo con un solo dial. Un equipo hizo <span class="kpi">0, 1, 1, 2, 3</span> goles en sus últimos cinco partidos. Mové su λ y mirá la verosimilitud:</p>
+    <div class="card">
+      <div class="sliderrow">
+        <span class="label">λ CANDIDATO</span>
+        <input type="range" id="mleS" min="20" max="320" value="80">
+        <span class="sliderval" id="mleV">0.80</span>
+      </div>
+      <div style="display:flex; align-items:baseline; gap:16px">
+        <div class="bignum" id="mleLL">—</div>
+        <span class="label">LOG-VEROSIMILITUD</span>
+      </div>
+      <p class="mono" id="mleHint" style="font-size:13px; color:var(--text-secondary); margin-top:12px"></p>
+    </div>
+    <p>El máximo cae en λ = 1.40 — la media de lo observado. Para un dial es trivial; para 200 simultáneos lo hace un optimizador numérico (L-BFGS-B) siguiendo el gradiente. Dos trampas reales del camino:</p>
+    <p><strong>Identificabilidad.</strong> Sumale +0.1 a TODOS los attacks y +0.1 a TODOS los defences: cada λ queda idéntico (la resta no cambia). Infinitas soluciones equivalentes → el optimizador deriva sin rumbo. El ancla: forzar <span class="kpi">mean(attack) = 0</span>. Una sola convención y la solución es única.</p>
+    <p><strong>El clip de τ.</strong> Con ρ explorando valores positivos, τ(0,0) = 1−λμρ puede volverse ≤ 0 en un 0-0 entre rivales dispares → log de un negativo → NaN a la 1 AM. La defensa: τ nunca baja de 10⁻¹⁰ dentro de la verosimilitud. La review adversarial predijo este modo de fallo antes de escribir el código; el detalle fino (la derivada también necesita enterarse del clip) es exactamente la clase de bug que solo un buen diagnóstico caza — la historia completa cierra el documento.</p>
+    <div class="checkpoint">
+      <span class="label">LO QUE TE LLEVÁS</span>
+      <p>Fitear = maximizar la verosimilitud ponderada girando ~200 diales a la vez. Identificabilidad y el clip de τ son las dos trampas conocidas del camino.</p>
+    </div>
+  </div>
+</section>
+<hr class="sep">
+
+<!-- ============ 07 DECISIÓN ============ -->
+<section id="s7">
+  <div class="wrap reveal">
+    <span class="sec-num">07</span>
+    <h2>La decisión: argmax sobre la grilla</h2>
+    <p>Círculo completo. El motor (secciones 03-06) produce la matriz P(h,a) de cada partido. El optimizador toma esa matriz, le aplica la función de puntos de la sección 01, y computa el EV de la sección 02 <strong>para cada marcador candidato</strong>. Gana el argmax. Acá corriendo en vivo con parámetros al estilo Corea–Chequia (P ≈ 0.39/0.31/0.30):</p>
+    <div class="card">
+      <span class="label">EV POR CANDIDATO — CALCULADO AHORA, EN TU NAVEGADOR, CON EL ALGORITMO REAL</span>
+      <div class="rank" id="evRank"></div>
+      <p style="font-size:13px; color:var(--text-secondary)" id="rankNote"></p>
+    </div>
+    <p>El 1-1 es la celda individual más probable y aún así pierde: <strong>el término de 5 puntos multiplicado por P(gana Corea) le gana la pulseada</strong>. Nada de esto es una regla sobre empates — es la misma aritmética que en Brasil–Marruecos elige el 0-0.</p>
+    <h3>Dos refinamientos que esperan su turno</h3>
+    <p><strong>El option value del empate (knockouts).</strong> Desde octavos, predecir empate desbloquea una segunda apuesta: +5 por el ganador de los penales. Un empate predicho vale su EV normal <em>más</em> ~5 × P(empate) × 0.5. El optimizador ya lo tiene implementado, apagado durante grupos.</p>
+    <p><strong>EV puro, no jugar-a-ganar.</strong> Los premios son por ranking, y un jugador que va perdiendo debería subir la varianza (cazar exactos improbables). No lo hacemos: el objetivo del proyecto es <em>medir calibración</em>, y maximizar EV por partido es lo correcto para eso — además de globalmente óptimo acá, porque el scoring es separable por partido. Si algún día el objetivo fuera ganar la oficina, esa es la palanca documentada sin implementar.</p>
+    <div class="checkpoint">
+      <span class="label">LO QUE TE LLEVÁS</span>
+      <p>argmax del EV sobre la grilla cierra el círculo: probabilidades (motor) + reglas (scoring) = jugada óptima por partido.</p>
+    </div>
+  </div>
+</section>
+<hr class="sep">
+
+<!-- ============ 08 FINAL SOÑADA ============ -->
+<section id="s8">
+  <div class="wrap reveal">
+    <span class="sec-num">08</span>
+    <h2>Del partido al torneo: la Final Soñada</h2>
+    <p>Todo lo anterior decide <strong>un partido</strong>. Pero el prode tiene una apuesta aparte que se cierra antes de la Fecha 3: nombrar <strong>campeón y subcampeón</strong> del mundial entero. Paga <span class="kpi">10 + 10</span> — y acá no hay una sola grilla para hacer argmax, porque el "resultado" es todo el cuadro.</p>
+    <p>Para eso necesitás <span class="kpi">P(campeón)</span> y <span class="kpi">P(subcampeón)</span> de cada selección. No salen de una fórmula cerrada: salen de <strong>simular el torneo</strong>. El mismo motor da la grilla de cada cruce posible; un <strong>Monte Carlo</strong> juega el bracket WC2026 completo <span class="kpi">50.000</span> veces — sampleando marcadores, resolviendo empates de knockout por penales (0.55 al favorito), aplicando localía solo donde la sede es de un anfitrión — y cuenta cuántas veces cada equipo gana la final y cuántas la pierde.</p>
+    <div class="aside"><span class="label">EL GIRO — SUBCAMPEÓN ≠ 2º FAVORITO</span>
+    El subcampeón no es "el segundo mejor": es <em>el que llega a la final y la pierde</em>. Al favorito le pasa lo contrario — suele <em>ganar</em> la final, no perderla. Así que la marginal de subcampeón la maximiza el fuerte-pero-no-dominante. Es la misma lógica de la sección 02: no preguntás "¿quién es mejor?" sino "¿qué casillero junta más puntos esperados?".</div>
+    <div class="card">
+      <span class="label">MARGINALES — MONTE CARLO 50.000 SIMS · PIN PROVISIONAL 2026-06-15</span>
+      <table>
+        <thead><tr><th>#</th><th>Campeón</th><th style="text-align:right">P</th><th>Subcampeón</th><th style="text-align:right">P</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td>Argentina</td><td class="num">0.162</td><td>Spain</td><td class="num">0.087</td></tr>
+          <tr><td class="num">2</td><td>Spain</td><td class="num">0.141</td><td>Argentina</td><td class="num">0.082</td></tr>
+          <tr><td class="num">3</td><td>England</td><td class="num">0.070</td><td>England</td><td class="num">0.059</td></tr>
+          <tr><td class="num">4</td><td>France</td><td class="num">0.065</td><td>France</td><td class="num">0.058</td></tr>
+          <tr><td class="num">5</td><td>Morocco</td><td class="num">0.063</td><td>Brazil</td><td class="num">0.056</td></tr>
+          <tr><td class="num">6</td><td>Brazil</td><td class="num">0.060</td><td>Morocco</td><td class="num">0.054</td></tr>
+        </tbody>
+      </table>
+      <p class="mono" id="fsPick" style="font-size:13px; color:var(--text-secondary); margin:12px 0 0"></p>
+    </div>
+    <p>El par óptimo se elige por fuerza bruta sobre todos los pares A≠B — la misma idea del argmax, ahora en dos dimensiones. Mirá que <strong>Spain es el campeón Nº2 (0.141) pero el subcampeón Nº1 (0.087)</strong>: justo la firma del giro de arriba. El pin de hoy es provisional (pre-torneo); la corrida que cuenta es cerca del <span class="kpi">24-jun</span>, re-fiteando con las Fechas 1-2 ya jugadas.</p>
+    <p>Y la misma disciplina del resto del proyecto: este segundo optimizador <strong>no se construyó hasta tener su propio examen</strong> — un oráculo de 15 tests aprobado antes de escribir el simulador, con un caso de oro de forma cerrada (un bracket de 4 equipos resuelto a mano) que el Monte Carlo debe reproducir dentro de la tolerancia. Más los datos del cuadro pineados: la tabla de 495 combinaciones de terceros y los desempates head-to-head-primero (cambio 2026).</p>
+    <div class="checkpoint">
+      <span class="label">LO QUE TE LLEVÁS</span>
+      <p>Para campeón/subcampeón no hay grilla: se simula el torneo entero y se cuentan finales. Y la marginal de subcampeón la gana el fuerte-no-dominante, no el favorito — EV otra vez, no "quién es mejor".</p>
+    </div>
+  </div>
+</section>
+<hr class="sep">
+
+<!-- ============ 09 VALIDACIÓN ============ -->
+<section id="s9">
+  <div class="wrap reveal">
+    <span class="sec-num">09</span>
+    <h2>Validación: cómo sabemos que no nos mentimos</h2>
+    <p>Este sistema se construyó al revés a propósito: <strong>primero el examen, después el código.</strong> Antes de escribir una línea del motor, la suite que lo califica se diseñó, pasó una revisión adversarial independiente (que encontró que los dos componentes de mayor leverage no tenían test que los discriminara — ambos huecos se cerraron antes de construir) y se commiteó como ancla. Los constructores del modelo tenían prohibido tocarla: un test "incómodo" detiene el build y escala, no se edita. Las familias del examen:</p>
+    <table>
+      <thead><tr><th>Familia</th><th>Qué prueba</th><th>Veredicto</th></tr></thead>
+      <tbody>
+        <tr><td>Acceptance</td><td>Las 12 celdas de ejemplo del reglamento oficial reproducen exactos — el ajuste al scoring se prueba contra la plataforma, no contra nuestra interpretación</td><td><span class="tag block">BLOQUEANTE</span></td></tr>
+        <tr><td>Recovery</td><td>Generamos 22.400 partidos sintéticos con parámetros conocidos desde las fórmulas del paper; el fit debe recuperarlos. Un signo equivocado en τ no recupera ρ=−0.12</td><td><span class="tag block">BLOQUEANTE</span></td></tr>
+        <tr><td>Cross-fit</td><td>Nuestro MLE contra statsmodels (implementación independiente de máxima adopción): mismo máximo, mismos parámetros</td><td><span class="tag block">BLOQUEANTE</span></td></tr>
+        <tr><td>Referencia externa</td><td>Fit sobre EPL 2017/18 debe reproducir el ρ publicado por una implementación ajena: dio −0.1285 exacto</td><td><span class="tag block">BLOQUEANTE</span></td></tr>
+        <tr><td>Invariantes</td><td>La grilla suma 1, el más fuerte gana más seguido, la localía sube P(local), equipo desconocido explota fuerte</td><td><span class="tag block">BLOQUEANTE</span></td></tr>
+        <tr><td>Diagnóstico</td><td>Backtest sobre WC2018 real: ¿el DC completo rinde al menos como su versión simple?</td><td><span class="tag">REPORT-ONLY</span></td></tr>
+      </tbody>
+    </table>
+    <p>Regla dura del build: <strong>los constructores no pueden tocar el examen.</strong> Los tests se escribieron y commitearon antes que el código; un builder que "necesita" cambiar un test se detiene y escala. La misma regla rige los componentes numéricos que llegaron después — el Monte Carlo de torneo (sección 08), el backtest (sección 10) y el Poisson bivariado de Karlis-Ntzoufras —, cada uno con su propio oráculo pre-aprobado e intocable: hoy son <span class="kpi">113/113</span> verdes, cuatro exámenes.</p>
+    <div class="aside"><span class="label">LA HISTORIA DEL BUG — POR QUÉ NINGUNA RED ALCANZA SOLA</span>
+    El builder introdujo un bug real: el clip de τ existía en la verosimilitud pero su derivada no se había enterado — gradiente inconsistente, el optimizador abortaba en silencio. <em>Los cinco tests bloqueantes pasaron igual</em>: sus universos (sintéticos prolijos, ligas densas) nunca tocaban el clip. Lo cazó el backtest report-only, porque los datos internacionales reales — goleadas históricas, 0-0 entre rivales rotos — sí lo tocaban. Moraleja doble: la review adversarial predijo la clase exacta de este fallo antes del build, y el test "que no bloquea nada" resultó el único que veía datos sucios de verdad. No recortes los diagnósticos por ser opcionales.</div>
+    <p>Pero "bien construido" no es lo mismo que "bueno". Que el examen pase no prueba que el modelo junte puntos en mundiales que no vio — esa es otra pregunta, y tiene su propia sección.</p>
+    <div class="checkpoint">
+      <span class="label">LO QUE TE LLEVÁS</span>
+      <p>El examen se escribe antes que el código, los constructores no lo tocan, y los diagnósticos con datos sucios valen oro aunque no bloqueen.</p>
+    </div>
+  </div>
+</section>
+<hr class="sep">
+
+<!-- ============ 10 VEREDICTO ============ -->
+<section id="s10">
+  <div class="wrap reveal">
+    <span class="sec-num">10</span>
+    <h2>El veredicto out-of-sample: ¿el modelo es bueno?</h2>
+    <p>El examen de la sección 09 prueba que el motor está <strong>bien construido</strong> — que hace lo que el paper dice, sin bugs. No prueba que sea <strong>bueno</strong> en lo único que paga el prode: juntar puntos en mundiales que nunca vio. Eso se mide distinto.</p>
+    <p>El método: <strong>backtest rolling-origin</strong>. Fiteás con todo lo anterior a un mundial pasado, predecís ese mundial <em>held-out</em> (el fit no lo vio) y lo scoreás con la función de puntos real — sobre WC2018 + WC2014 + WC2010. Con <strong>WC2022 reservado virgen</strong> para el veredicto final modelo-vs-modelo: un dato que ya miraste no puede validarte. El harness tiene — cómo no — su propio oráculo (14 tests, red-teameado por dos revisores).</p>
+    <p>Primer resultado: el knob de la sección 05. La corazonada era "ξ club-agresivo olvida demasiado rápido para selecciones". El backtest la <strong>falsó</strong> — ξ=0.0018 cae en un <em>plateau plano</em>, y lo que degrada los puntos es olvidar <em>más</em> rápido, no menos:</p>
+    <div class="card">
+      <span class="label">PUNTOS ESPERADOS HELD-OUT vs ξ — BACKTEST WC2018/14/10 (AGREGADO, N=192)</span>
+      <div class="rank" id="xiRank"></div>
+      <p style="font-size:13px; color:var(--text-secondary); margin-top:8px">El plateau <span class="mono">[0.0005–0.0030]</span> contiene a ξ=0.0018 (diferencias internas dentro de ~0.5 SE). Lo único robusto: <span class="kpi">ξ ≥ 0.005 degrada</span> (2–3.4 SE). Veredicto D7: <strong>no recalibrar.</strong></p>
+    </div>
+    <p>Y la moraleja en cancha: EE.UU. —que el modelo veía underdog— ganó 4-1, y Marruecos terminó 5º en la Final Soñada. Ninguno era el modelo "viendo algo": eran <strong>ruido de muestra chica</strong>, justo lo que el backtest predice cuando ξ no está sesgado.</p>
+    <div class="aside"><span class="label">HONESTIDAD SOBRE EL PODER</span>
+    N=192 es poco y el EP es escalonado: alcanza para decidir "no muevas ξ, evitá ξ≥0.005", no para clavar que 0.0018 sea el óptimo exacto.</div>
+    <p style="margin-top:28px">Segundo resultado — la pregunta que <strong>nadie había medido</strong>: ¿Dixon-Coles le gana al Poisson simple en lo que paga el prode? La corrección ρ (sección 04) existe para afinar las cuatro celdas bajas. La medimos con un test <strong>pareado</strong> —cada partido predicho por ambos modelos sobre el mismo fit, así la diferencia no se ahoga en la varianza común— en las dos métricas que importan:</p>
+    <div class="card">
+      <span class="label">DC-FULL vs ρ0 (POISSON) — HELD-OUT WC2018/14/10 · N=192 · SE PAREADO</span>
+      <table>
+        <thead><tr><th>Métrica</th><th>Qué mira</th><th>Δ (full − ρ0)</th><th>Lectura</th></tr></thead>
+        <tbody>
+          <tr><td>Puntos esperados</td><td>la decisión: el pick óptimo</td><td><span class="mono">+0.04 · z=0.6</span></td><td>ρ no mueve la aguja</td></tr>
+          <tr><td>Log-loss</td><td>la grilla P(h,a) entera</td><td><span class="mono">+0.004 · z=1.5</span></td><td>ρ calibra un pelo <em>peor</em></td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:13px; color:var(--text-secondary); margin-top:8px">Log-loss: menor = mejor. Ninguna diferencia cruza significancia, pero <strong>ninguna favorece a ρ</strong> — y el log-loss, ~25× más sensible que el EP, ni siquiera la rescata: la empuja levemente en contra. <span class="kpi">La corrección estrella de Dixon-Coles no se gana su lugar contra selecciones.</span></p>
+    </div>
+    <p>¿La sacamos, entonces? Todavía no: la evidencia <em>en contra</em> tampoco es significativa, ρ es la base teórica del modelo y no hace daño medible. La decisión honesta fue <strong>esperar más datos</strong> —más copas, y WC2022 que sigue virgen— antes de simplificar. Medir no siempre es cambiar: a veces es saber que todavía no sabés lo suficiente para cambiar.</p>
+    <p style="margin-top:32px"><span class="kpi">Measure, don't assume.</span></p>
+    <div class="checkpoint">
+      <span class="label">LO QUE TE LLEVÁS</span>
+      <p>El oráculo dice "bien construido"; el backtest held-out dice "bueno o no". Ya midió ξ (no se toca) y DC-vs-Poisson (ρ no se gana su lugar en ninguna métrica) — y la respuesta honesta fue esperar más datos antes de simplificar. WC2022 sigue virgen para el veredicto final.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span class="label">ORÁCULO MUNDIALISTA · 2026-06-15</span>
+    <span class="label">MOTOR: DIXON-COLES + TIME-DECAY · MONTE CARLO DE TORNEO · NUMPY/SCIPY IN-HOUSE</span>
+    <span class="label">DOC DIDÁCTICO · LA MATEMÁTICA DE ESTA PÁGINA ES EL ALGORITMO REAL</span>
+  </div>
+</footer>
+
+<script>
+/* ============ NÚCLEO MATEMÁTICO — port verbatim del motor real ============ */
+function pois(k, lam){ let p = Math.exp(-lam); for(let i=1;i<=k;i++) p *= lam/i; return p; }
+function tauf(h,a,lh,la,rho){
+  if(h===0&&a===0) return 1-lh*la*rho;
+  if(h===1&&a===0) return 1+la*rho;
+  if(h===0&&a===1) return 1+lh*rho;
+  if(h===1&&a===1) return 1-rho;
+  return 1;
+}
+function dcGrid(lh,la,rho,maxg){
+  maxg = maxg||10; const g=[]; let s=0;
+  for(let h=0;h<=maxg;h++){ g[h]=[];
+    for(let a=0;a<=maxg;a++){ const v=pois(h,lh)*pois(a,la)*Math.max(tauf(h,a,lh,la,rho),1e-10); g[h][a]=v; s+=v; } }
+  for(let h=0;h<=maxg;h++) for(let a=0;a<=maxg;a++) g[h][a]/=s;
+  return g;
+}
+function outc(h,a){ return h>a?'H':(a>h?'A':'D'); }
+/* match_points — port de wcprode/scoring.py (sin penales: grupos) */
+function matchPoints(ph,pa,ah,aa){
+  if(ph===ah && pa===aa) return 12;
+  let pts=0;
+  if(outc(ph,pa)===outc(ah,aa)) pts+=5;
+  if(ph===ah || pa===aa) pts+=2;
+  return pts;
+}
+function evOf(ph,pa,g){ let e=0; for(let h=0;h<g.length;h++) for(let a=0;a<g[0].length;a++) e+=g[h][a]*matchPoints(ph,pa,h,a); return e; }
+const f2=x=>x.toFixed(2), f1=x=>x.toFixed(1), f0pc=x=>(100*x).toFixed(0)+'%';
+
+/* ============ modo ============ */
+function toggleMode(){
+  const r=document.documentElement;
+  const next = r.getAttribute('data-theme')==='light' ? 'dark':'light';
+  r.setAttribute('data-theme', next);
+  document.getElementById('modebtn').textContent = next==='light' ? 'DARK':'LIGHT';
+}
+
+/* ============ progreso + reveal ============ */
+addEventListener('scroll', ()=>{
+  const h=document.documentElement;
+  document.getElementById('progress').style.width = (100*h.scrollTop/(h.scrollHeight-h.clientHeight))+'%';
+});
+const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('vis'); io.unobserve(e.target);} }),{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ============ TAREA 3d: scrollspy topbar ============ */
+(function(){
+  const sections=[
+    {id:'s0', label:'· EL MODELO'},
+    {id:'s1', label:'· 01 REGLAS'},
+    {id:'s2', label:'· 02 VALOR ESPERADO'},
+    {id:'s3', label:'· 03 POISSON'},
+    {id:'s4', label:'· 04 DIXON-COLES'},
+    {id:'s5', label:'· 05 TIEMPO'},
+    {id:'s6', label:'· 06 AJUSTE'},
+    {id:'s7', label:'· 07 DECISIÓN'},
+    {id:'s8', label:'· 08 FINAL SOÑADA'},
+    {id:'s9', label:'· 09 VALIDACIÓN'},
+    {id:'s10', label:'· 10 VEREDICTO'},
+  ];
+  const topbarLabel = document.getElementById('topbarLabel');
+  let current = '· EL MODELO';
+  const spyObs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        const found = sections.find(s=>s.id===e.target.id);
+        if(found && found.label !== current){
+          current = found.label;
+          topbarLabel.textContent = 'ORÁCULO MUNDIALISTA ' + current;
+        }
+      }
+    });
+  },{rootMargin:'-40% 0px -50% 0px', threshold:0});
+  sections.forEach(s=>{
+    const el=document.getElementById(s.id);
+    if(el) spyObs.observe(el);
+  });
+})();
+
+/* ============ TAREA 3a: count-up hero stats ============ */
+(function(){
+  const reduced = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  function countUp(el, target, duration, formatter){
+    if(reduced){ el.textContent = formatter(target); return; }
+    const start = performance.now();
+    function step(now){
+      const t = Math.min((now - start) / duration, 1);
+      // ease out: 1 - (1-t)^2
+      const eased = 1 - Math.pow(1-t, 2);
+      el.textContent = formatter(Math.round(eased * target));
+      if(t < 1) requestAnimationFrame(step);
+      else el.textContent = formatter(target);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function fmtPartidos(n){ return n.toString(); }
+  function fmtFit(n){
+    // es-AR format: 49.306 (dot as thousands separator)
+    if(n >= 1000) return Math.floor(n/1000)+'.'+String(n%1000).padStart(3,'0');
+    return n.toString();
+  }
+
+  // Delay to let hero animation settle (480ms) then count-up ~900ms
+  setTimeout(()=>{
+    countUp(document.getElementById('statPartidos'), 104, 900, fmtPartidos);
+    countUp(document.getElementById('statFit'), 49306, 900, fmtFit);
+    // 113/113 just fades in via CSS, no count-up per spec
+  }, 500);
+})();
+
+/* ============ 01 reglas ============ */
+const ACTUAL=[3,1];
+const ruleCands=[[3,1],[3,0],[2,1],[2,0],[0,1],[3,3],[0,0]];
+const rp=document.getElementById('rulePicks');
+ruleCands.forEach((c,i)=>{
+  const b=document.createElement('button'); b.className='pick'; b.textContent=c[0]+' - '+c[1];
+  b.onclick=()=>setRule(i); rp.appendChild(b);
+});
+function ruleBreak(ph,pa){
+  const [ah,aa]=ACTUAL;
+  if(ph===ah&&pa===aa) return 'Marcador exacto → 12. No se descompone: el 12 es plano.';
+  const parts=[];
+  if(outc(ph,pa)===outc(ah,aa)) parts.push('resultado correcto +5');
+  if(ph===ah) parts.push('goles de Argentina ('+ph+') +2');
+  else if(pa===aa) parts.push('goles de Francia ('+pa+') +2');
+  return parts.length? parts.join('  ·  ') : 'Nada coincide: ni resultado ni cantidad de goles de un equipo.';
+}
+function setRule(i){
+  const c=ruleCands[i];
+  document.querySelectorAll('#rulePicks .pick').forEach((b,j)=>b.classList.toggle('on', j===i));
+  document.getElementById('rulePts').textContent = matchPoints(c[0],c[1],ACTUAL[0],ACTUAL[1]);
+  document.getElementById('ruleWhy').textContent = ruleBreak(c[0],c[1]);
+}
+setRule(1);
+
+/* ============ 02 EV toy ============ */
+const WORLD=[[1,0,0.30],[2,0,0.20],[1,1,0.30],[0,1,0.20]];
+const evCands=[[1,0],[1,1],[2,0],[2,1],[0,1]];
+const ep=document.getElementById('evPicks');
+evCands.forEach((c,i)=>{
+  const b=document.createElement('button'); b.className='pick'; b.textContent=c[0]+' - '+c[1];
+  b.onclick=()=>setEV(i); ep.appendChild(b);
+});
+function harvestDesc(ph,pa,ah,aa){
+  if(ph===ah&&pa===aa) return 'Exacto';
+  const parts=[];
+  if(outc(ph,pa)===outc(ah,aa)) parts.push('resultado (5)');
+  if(ph===ah) parts.push('goles local (+2)'); else if(pa===aa) parts.push('goles visita (+2)');
+  return parts.length? parts.join(' + ') : '—';
+}
+function setEV(i){
+  const [ph,pa]=evCands[i];
+  document.querySelectorAll('#evPicks .pick').forEach((b,j)=>b.classList.toggle('on', j===i));
+  let rows='', total=0;
+  WORLD.forEach(w=>{
+    const pts=matchPoints(ph,pa,w[0],w[1]); const ap=pts*w[2]; total+=ap;
+    rows+='<tr><td class="mono">'+w[0]+'-'+w[1]+'</td><td class="num">'+f2(w[2])+'</td><td>'+harvestDesc(ph,pa,w[0],w[1])+'</td><td class="num">'+pts+'</td><td class="num">'+ap.toFixed(1)+'</td></tr>';
+  });
+  document.getElementById('evRows').innerHTML=rows;
+  document.getElementById('evTotal').textContent=total.toFixed(1);
+}
+setEV(0);
+
+/* ============ 03 poisson bars ============ */
+const lamS=document.getElementById('lamSlider');
+function drawPois(){
+  const lam=lamS.value/100;
+  document.getElementById('lamVal').textContent=f2(lam);
+  const K=8, bars=document.getElementById('poisBars'), labs=document.getElementById('poisLabels');
+  if(!bars.children.length){
+    for(let k=0;k<K;k++){ const d=document.createElement('div'); d.className='bar'; bars.appendChild(d);
+      const s=document.createElement('span'); s.textContent=k; labs.appendChild(s); }
+  }
+  let mx=0; const ps=[];
+  for(let k=0;k<K;k++){ ps[k]=pois(k,lam); if(ps[k]>mx) mx=ps[k]; }
+  for(let k=0;k<K;k++){ bars.children[k].style.height=(100*ps[k]/mx*1.5)+'px'; bars.children[k].title='P('+k+')='+(100*ps[k]).toFixed(1)+'%'; }
+}
+lamS.addEventListener('input',drawPois); drawPois();
+
+/* ============ 04 heatmap ============ */
+const hL=document.getElementById('hLam'), aL=document.getElementById('aLam'), rS=document.getElementById('rhoS');
+const SHOW=7;
+let heatBuilt = false;
+function drawHeat(){
+  const lh=hL.value/100, la=aL.value/100, rho=rS.value/100;
+  document.getElementById('hLamV').textContent=f2(lh);
+  document.getElementById('aLamV').textContent=f2(la);
+  document.getElementById('rhoV').textContent=(rho<0?'−':'+')+Math.abs(rho).toFixed(2);
+  const g=dcGrid(lh,la,rho,10), g0=dcGrid(lh,la,0,10);
+  const heat=document.getElementById('heat');
+  if(!heatBuilt){
+    for(let r=0;r<=SHOW;r++) for(let c=0;c<=SHOW;c++){
+      const d=document.createElement('div');
+      if(r===0&&c===0){ d.className='cell hdr'; d.innerHTML='<span></span>'; }
+      else if(r===0){ d.className='cell hdr'; d.innerHTML='<span>'+(c-1)+'</span>'; }
+      else if(c===0){ d.className='cell hdr'; d.innerHTML='<span>'+(r-1)+'</span>'; }
+      else { d.className='cell'; d.innerHTML='<span></span>'; }
+      heat.appendChild(d);
+    }
+    heatBuilt = true;
+  }
+  let mx=0; for(let h=0;h<SHOW;h++) for(let a=0;a<SHOW;a++) if(g[h][a]>mx) mx=g[h][a];
+  let i=0;
+  const isDCActive = Math.abs(rho)>0.004;
+  for(let r=0;r<=SHOW;r++) for(let c=0;c<=SHOW;c++){
+    const d=heat.children[i++];
+    if(r===0||c===0) continue;
+    const h=r-1, a=c-1, p=g[h][a];
+    d.style.opacity=Math.max(0.04, p/mx).toFixed(3);
+    const isDC=(h<=1&&a<=1);
+    // TAREA 3f: smooth outline transition via classes
+    if(isDC && isDCActive){
+      d.classList.add('dc'); d.classList.remove('no-dc');
+    } else if(isDC && !isDCActive){
+      d.classList.add('no-dc'); d.classList.remove('dc');
+    } else {
+      d.classList.remove('dc','no-dc');
+    }
+    d.firstChild.textContent=(100*p).toFixed(1);
+    d.title=h+'-'+a+' : '+(100*p).toFixed(2)+'%';
+  }
+  let H=0,D=0,A=0;
+  for(let h=0;h<g.length;h++) for(let a=0;a<g[0].length;a++){ if(h>a)H+=g[h][a]; else if(h===a)D+=g[h][a]; else A+=g[h][a]; }
+  document.getElementById('pH').textContent=f0pc(H);
+  document.getElementById('pD').textContent=f0pc(D);
+  document.getElementById('pA').textContent=f0pc(A);
+  const d00=100*(g[0][0]-g0[0][0]), d11=100*(g[1][1]-g0[1][1]);
+  document.getElementById('dcDelta').textContent = isDCActive
+    ? 'Con ρ='+(rho<0?'−':'+')+Math.abs(rho).toFixed(2)+': el 0-0 se mueve '+(d00>=0?'+':'')+d00.toFixed(2)+' pts de probabilidad y el 1-1 '+(d11>=0?'+':'')+d11.toFixed(2)+' vs el producto independiente. El resto de la grilla apenas respira.'
+    : 'Con ρ=0 esto ES el producto independiente de la sección 03.';
+}
+[hL,aL,rS].forEach(s=>s.addEventListener('input',drawHeat)); drawHeat();
+
+/* ============ 05 decay ============ */
+const xiS=document.getElementById('xiS');
+const SAMPLES=[['Mundial 1970',20440],['Mundial 2010',5840],['Mundial 2022',1290],['Amistoso hace 6 meses',180]];
+function drawDecay(){
+  const xi=xiS.value/10000;
+  document.getElementById('xiV').textContent=xi.toFixed(4);
+  const svg=document.getElementById('decaySvg');
+  const W=700,H=200,px=46,py=16, spanD=9000;
+  let path='';
+  for(let d=0;d<=spanD;d+=60){
+    const w=xi===0?1:Math.exp(-xi*d);
+    const x=px+(W-px-12)*d/spanD, y=H-py-(H-2*py)*w;
+    path+=(d===0?'M':'L')+x.toFixed(1)+' '+y.toFixed(1)+' ';
+  }
+  let hl='', hlTxt;
+  if(xi>0){
+    const hld=Math.log(2)/xi;
+    hlTxt='Half-life: '+Math.round(hld)+' días — un partido de hace '+Math.round(hld)+' días pesa la mitad que uno de hoy.'+(Math.abs(xi-0.0018)<0.00005?' Este es el valor del fit actual (calibrado en clubes — medido y confirmado en Fase 3: D7).':'');
+    if(hld<=spanD){ const x=px+(W-px-12)*hld/spanD;
+      hl='<line class="hl" x1="'+x.toFixed(1)+'" y1="'+py+'" x2="'+x.toFixed(1)+'" y2="'+(H-py)+'"/><text x="'+(x+5).toFixed(1)+'" y="'+(py+10)+'">½</text>'; }
+  } else { hlTxt='ξ = 0: sin olvido — el Brasil de 1970 pesa igual que el de 2025.'; }
+  svg.innerHTML =
+    '<line class="axis" x1="'+px+'" y1="'+(H-py)+'" x2="'+(W-8)+'" y2="'+(H-py)+'"/>'+
+    '<line class="axis" x1="'+px+'" y1="'+py+'" x2="'+px+'" y2="'+(H-py)+'"/>'+
+    '<text x="6" y="'+(py+6)+'">w=1</text><text x="6" y="'+(H-py)+'">w=0</text>'+
+    '<text x="'+(W-110)+'" y="'+(H-2)+'">ANTIGÜEDAD (DÍAS)</text>'+
+    hl+'<path class="curve" d="'+path+'"/>';
+  let rows='';
+  SAMPLES.forEach(s=>{
+    const w=xi===0?1:Math.exp(-xi*s[1]);
+    rows+='<tr><td>'+s[0]+'</td><td class="num">'+s[1].toLocaleString('es-AR')+' d</td><td class="num">'+(w<0.0001&&w>0?'<0.01%':(100*w).toFixed(w<0.01?2:1)+'%')+'</td></tr>';
+  });
+  document.getElementById('decayRows').innerHTML=rows;
+  document.getElementById('hlText').textContent=hlTxt;
+}
+xiS.addEventListener('input',drawDecay); drawDecay();
+
+/* ============ 06 MLE ============ */
+const OBS=[0,1,1,2,3];
+const mleS=document.getElementById('mleS');
+function drawMLE(){
+  const lam=mleS.value/100;
+  document.getElementById('mleV').textContent=f2(lam);
+  let ll=0; OBS.forEach(k=>ll+=Math.log(pois(k,lam)));
+  document.getElementById('mleLL').textContent=ll.toFixed(2);
+  const opt=1.40;
+  const d=Math.abs(lam-opt);
+  document.getElementById('mleHint').textContent =
+    d<0.015 ? '★ Máximo encontrado: λ̂ = 1.40 = media de {0,1,1,2,3}. Eso es el MLE.' :
+    (lam<opt? 'Subí λ — todavía hay verosimilitud que ganar a la derecha.' : 'Te pasaste: bajá λ. El puntaje cae cuando el dial se aleja de lo observado.');
+}
+mleS.addEventListener('input',drawMLE); drawMLE();
+
+/* ============ 07 ranking EV ============ */
+(function(){
+  const g=dcGrid(1.18,1.02,-0.066,10); /* ~Corea-Chequia: H 0.40 D 0.28 A 0.32 */
+  const cands=[[1,0],[1,1],[2,1],[0,0],[2,0],[0,1],[1,2]];
+  const evs=cands.map(c=>({c:c, ev:evOf(c[0],c[1],g), p:g[c[0]][c[1]]}));
+  evs.sort((a,b)=>b.ev-a.ev);
+  const mx=evs[0].ev;
+  let html='';
+  evs.forEach((e,i)=>{
+    html+='<div class="rankrow'+(i===0?' best':'')+'">'+
+      '<span class="mono" style="font-size:14px">'+e.c[0]+' - '+e.c[1]+'</span>'+
+      '<div><div class="rankbar" style="width:'+(100*e.ev/mx).toFixed(1)+'%"></div></div>'+
+      '<span class="mono" style="font-size:13px; text-align:right">'+e.ev.toFixed(2)+(i===0?' <span class="tagwin">ARGMAX</span>':'')+'</span></div>';
+  });
+  document.getElementById('evRank').innerHTML=html;
+  let modal=evs[0]; evs.forEach(e=>{ if(e.p>modal.p) modal=e; });
+  let H=0,D=0;
+  for(let h=0;h<g.length;h++) for(let a=0;a<g[0].length;a++){ if(h>a)H+=g[h][a]; else if(h===a)D+=g[h][a]; }
+  document.getElementById('rankNote').textContent =
+    'Marcador modal: '+modal.c[0]+'-'+modal.c[1]+' (P='+(100*modal.p).toFixed(1)+'%). P(gana local)='+(100*H).toFixed(0)+'% vs P(empate)='+(100*D).toFixed(0)+'%: el término de 5 puntos decide el argmax.';
+})();
+
+/* ============ 08 Final Soñada — pick (port de final_sonada_pick) ============ */
+(function(){
+  const champ=[['Argentina',0.162],['Spain',0.141],['England',0.070],['France',0.065],['Morocco',0.063],['Brazil',0.060]];
+  const sub  =[['Spain',0.087],['Argentina',0.082],['England',0.059],['France',0.058],['Brazil',0.056],['Morocco',0.054]];
+  const aC=champ.reduce((m,x)=>x[1]>m[1]?x:m);
+  const aS=sub.reduce((m,x)=>x[1]>m[1]?x:m);
+  /* argmax(campeón) != argmax(subcampeón) -> par directo (rama sin conflicto del optimizador) */
+  const ev=10*aC[1]+10*aS[1];
+  const el=document.getElementById('fsPick');
+  if(el) el.textContent =
+    'Par óptimo (fuerza bruta sobre pares A≠B): campeón '+aC[0]+' '+aC[1].toFixed(3)+
+    ' · subcampeón '+aS[0]+' '+aS[1].toFixed(3)+
+    ' → EV = 10·'+aC[1].toFixed(3)+' + 10·'+aS[1].toFixed(3)+' = '+ev.toFixed(2)+'/20  (reporte sin redondear: 2.48).';
+})();
+
+/* ============ 10 Veredicto — plateau de xi (EP held-out real, backtest D7) ============ */
+(function(){
+  const rows=[
+    ['0.0001',4.92,''],
+    ['0.0005',5.02,''],
+    ['0.0010',5.13,'argmax'],
+    ['0.0018',5.03,'actual'],
+    ['0.0030',5.11,''],
+    ['0.0050',4.58,'down'],
+    ['0.0100',4.19,'down'],
+  ];
+  const mx=Math.max.apply(null,rows.map(r=>r[1]));
+  const host=document.getElementById('xiRank');
+  if(!host) return;
+  let html='';
+  rows.forEach(r=>{
+    const down=r[2]==='down', cur=r[2]==='actual';
+    const barColor = down? 'var(--accent)' : (cur? 'var(--text-display)':'var(--text-primary)');
+    const barOp = down? '0.55' : (cur? '1':'0.8');
+    const note = cur? ' ← actual' : (r[2]==='argmax'? '  argmax' : (down? '  ↓' : ''));
+    html+='<div style="display:grid; grid-template-columns:78px 1fr 116px; gap:12px; align-items:center; padding:5px 0">'+
+      '<span class="mono" style="font-size:13px'+(cur?'; font-weight:700; color:var(--text-display)':'')+'">ξ '+r[0]+'</span>'+
+      '<div><div style="height:10px; border-radius:2px; background:'+barColor+'; opacity:'+barOp+'; width:'+(100*r[1]/mx).toFixed(1)+'%; transition:width .4s var(--ease)"></div></div>'+
+      '<span class="mono" style="font-size:13px; text-align:right'+(cur?'; color:var(--text-display)':'')+'">'+r[1].toFixed(2)+note+'</span></div>';
+  });
+  host.innerHTML=html;
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "_comment": "dependency-gate allowlist. Foundational deps only — near-zero supply-chain ambiguity for this numeric engine. Anything NOT here needs an audit doc at docs/dep_audits/<pkg>.md. The gate reads the 'allow' array; '_'-prefixed keys are ignored.",
+  "_why_these": "numpy/scipy = the in-house Dixon-Coles engine's only runtime math deps; pandas = dataframe IO for the validated ingest; pytest = test runner. statsmodels (oracle O4 dev-dep) is deliberately NOT here — it enters via an audit doc to dogfood the gate.",
+  "allow": [
+    "numpy",
+    "scipy",
+    "pandas",
+    "pytest"
+  ]
+}

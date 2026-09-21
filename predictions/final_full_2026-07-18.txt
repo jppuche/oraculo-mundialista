@@ -1,0 +1,5 @@
+# WC2026 KNOCKOUTS - prediccion EV-optima | modo=full (fit_rho=True, rho=-0.0846, gamma=0.2086, xi=0.0018) | fit=49518 partidos | pen_win_prob=0.55 | grid@120'(c=0.333) | 2 cruces
+# grid puntuado a 120' (penalty.overtime_grid, alargue): el +5 de penales usa P(empate 120'); P(H/D/A) y modal son a 120'. prode_rules 1.4 + penalty_model_design.md (D14)
+
+2026-07-18                    France 1-0 England                   EV=4.13  [H 0.48 D 0.16 A 0.36]  modal 1-0 (P=0.14)  alt: 2-1, 2-0, 3-1  (neutral)
+2026-07-19                     Spain 1-0 Argentina                 EV=4.20  [H 0.46 D 0.19 A 0.36]  modal 1-0 (P=0.16)  alt: 2-1, 2-0, 0-1  (neutral)

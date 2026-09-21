@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wcprode"
+version = "0.0.1"
+description = "World Cup 2026 prode predictor — Dixon-Coles scoreline engine + per-match expected-points optimizer"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "pandas>=2.0",
+]
+
+[project.optional-dependencies]
+# dev/test only. statsmodels backs the oracle O4 cross-fit; it enters via the
+# dependency-gate audit doc (docs/dep_audits/statsmodels.md), NOT the allowlist.
+dev = ["pytest>=8.0", "statsmodels>=0.14"]
+
+[tool.setuptools.packages.find]
+include = ["wcprode*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
