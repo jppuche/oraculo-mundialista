@@ -2,7 +2,7 @@
 
 > Predicting the 2026 World Cup for an office pool that pays for **exact scorelines** — and using it as a small, honest case study in how to build a statistical model *with* guardrails instead of vibes.
 
-![status](https://img.shields.io/badge/status-tournament_ops-2ea44f)
+![status](https://img.shields.io/badge/status-concluded_(WC2026)-555)
 ![tests](https://img.shields.io/badge/tests-130%2F130_green-2ea44f)
 ![engine](https://img.shields.io/badge/engine-Dixon--Coles_%2B_time--decay-1f6feb)
 ![runtime](https://img.shields.io/badge/runtime_deps-3-555)
@@ -131,16 +131,16 @@ Generate predictions yourself:
 
 ## Status & roadmap
 
-**Now (knockouts):** the full pipeline is green (130/130 tests, all **five** oracles passing) and running live through the tournament — group stage, Round of 32 and Round of 16 all predicted and scored vs real results, Cuartos predicted, Final Soñada locked (Argentina + Spain). Knockouts are scored at 120' by an extra-time/shootout model (D14). Phase-3 validation is closed: the recency knob (ξ) calibrated out-of-sample (D7); DC-vs-ρ0 measured across EP and log-loss (D8: the ρ-correction earns no place in either; ρ0 is empirically viable); and a Karlis-Ntzoufras bivariate-Poisson earns no significant place either (D10: EP z=1.73, n.s.) — so **no form of goal-dependence (ρ nor KN) pays its way against national teams.** Dependency-gate live.
+**Concluded (the tournament is over; this repo is a finished case study).** The pipeline ran live through the whole tournament with all tests green (130/130, all **five** oracles passing): every round from the group stage to the semifinals was predicted and then scored against real results (see `predictions/scored_*.md`), and the final was predicted on 2026-07-18 (`predictions/final_full_2026-07-18.txt`; it is not scored in this repo). The Final Soñada (Argentina + Spain) was locked on Jun 24. Knockouts are scored at 120' by an extra-time/shootout model (D14). Phase-3 validation is closed: the recency knob (ξ) calibrated out-of-sample (D7); DC-vs-ρ0 measured across EP and log-loss (D8: the ρ-correction earns no place in either; ρ0 is empirically viable); and a Karlis-Ntzoufras bivariate-Poisson earns no significant place either (D10: EP z=1.73, n.s.) — so **no form of goal-dependence (ρ nor KN) pays its way against national teams.** A dependency gate screened installs (audits in `docs/dep_audits/`).
 
-| Next | When | What it needs |
+| Milestone | When | Notes |
 |------|------|---------------|
-| Refresh picks per matchday | rolling, until each kickoff | re-fetch recent results → re-fit → update only the picks that moved |
+| Refresh picks per matchday — done ✅ | rolling, until each kickoff | re-fetch recent results → re-fit → update only the picks that moved |
 | **Final Soñada** — locked ✅ (Argentina + Spain) | done **Jun 24** | re-pinned + re-fit, tournament Monte-Carlo re-run |
 | Recency knob (ξ) — calibrated ✅ | done 2026-06-15 | rolling-origin backtest on WC2018/14/10 → ξ=0.0018 confirmed (flat optimum) |
 | Model comparison (DC vs ρ0) — measured ✅ | done 2026-06-15 | paired backtest WC2018/14/10 on EP (#8, z=+0.57) and log-loss (#10, z=+1.47 *worse*, n.s.): ρ earns no place; keep `fit_rho` (ρ0 viable) |
 | Bivariate-Poisson (explicit dependence) — measured ✅ | done 2026-06-16 | paired backtest, EP bivariate vs ρ0 z=1.73 (n.s.), log-loss tie; λ3≈0.05. Closes Phase 3: no dependence form pays its way. Needed an analytic gradient — the numerical one didn't converge at 300-team scale and flipped the sign (D10) |
-| Knockouts (R32 → final) — in progress ✅ | Jun 28+ | scored at 120' via the extra-time/shootout model (D14); R32 + R16 done, Cuartos predicted |
+| Knockouts (R32 → final) — done ✅ | Jun 28 – Jul 18 | scored at 120' via the extra-time/shootout model (D14); R32, R16, quarterfinals and semifinals predicted and scored; final predicted |
 
 
 ---
